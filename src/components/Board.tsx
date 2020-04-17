@@ -11,9 +11,7 @@ const Grid = styled.table`
   border-spacing: 0px;
 `;
 
-const GridRow = styled.tr`
-  border: 1px solid black;
-`;
+const GridRow = styled.tr``;
 
 // TODO: Make size of each tile dynamic to total grid size
 const GridItem = styled.td`
@@ -21,14 +19,8 @@ const GridItem = styled.td`
   text-align: center;
   width: 10%;
   height: 10%;
-`;
-
-const BottomLayer = styled.div`
   position: relative;
-`;
-
-const TopLayer = styled.div`
-  position: absolute;
+  overflow: hidden;
 `;
 
 const MiddleOfScreen = styled.div`
@@ -46,40 +38,37 @@ const Board = () => {
       Math.floor(size.width * size.height * 0.2) // Start with 20% of board as bombs
     )
   );
-  const [topLayer, setTopLayer] = useState(
-    initialize2dArray({ ...size, fillWith: 0 })
-  );
   const [flags, setFlags] = useState([[]]);
+
+  const handleClick = (
+    e: React.MouseEvent,
+    cell: { content: number; row: number; col: number }
+  ) => {
+    if (cell.content === -1) {
+      alert("BOOM!");
+    }
+  };
   return (
     <MiddleOfScreen>
-      <BottomLayer>
-        <Grid>
-          <tbody>
-            {bottomLayer.map((row, i) => (
-              <GridRow key={i}>
-                {row.map((cell, i) => (
-                  <GridItem key={i}>{cell ? cell : ""}</GridItem>
-                ))}
-              </GridRow>
-            ))}
-          </tbody>
-        </Grid>
-      </BottomLayer>
-      <TopLayer>
-        <Grid>
-          <tbody>
-            {topLayer.map((row, i) => (
-              <GridRow key={i}>
-                {row.map((cell, i) => (
-                  <GridItem key={i}>
-                    <CoverUp />
-                  </GridItem>
-                ))}
-              </GridRow>
-            ))}
-          </tbody>
-        </Grid>
-      </TopLayer>
+      <Grid>
+        <tbody>
+          {bottomLayer.map((row, row_i) => (
+            <GridRow key={row_i}>
+              {row.map((cell, cell_i) => (
+                <GridItem
+                  key={cell_i}
+                  onClick={(e) =>
+                    handleClick(e, { content: cell, row: row_i, col: cell_i })
+                  }
+                >
+                  <CoverUp />
+                  {cell ? cell : ""}
+                </GridItem>
+              ))}
+            </GridRow>
+          ))}
+        </tbody>
+      </Grid>
     </MiddleOfScreen>
   );
 };
