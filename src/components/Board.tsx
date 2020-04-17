@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { setupBoard } from "../utils";
+import { setupBoard, initialize2dArray } from "../utils";
+import CoverUp from "./CoverUp";
 
 const Grid = styled.table`
   width: 500px;
   height: 500px;
-  background-color: hsla(235, 7%, 80%, 1);
   border: 1px solid black;
   border-spacing: 0px;
 `;
@@ -17,36 +17,70 @@ const GridRow = styled.tr`
 
 // TODO: Make size of each tile dynamic to total grid size
 const GridItem = styled.td`
-  border: 1px solid black;
+  border: 0.5px solid black;
   text-align: center;
   width: 10%;
   height: 10%;
 `;
 
+const BottomLayer = styled.div`
+  position: relative;
+`;
+
+const TopLayer = styled.div`
+  position: absolute;
+`;
+
+const MiddleOfScreen = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
 const Board = () => {
-  // Board is a size x size square grid.
-  const [size, setSize] = useState(10);
-  const [field, setField] = useState<number[][]>(
+  const [size, setSize] = useState({ width: 10, height: 10 });
+  const [bottomLayer, setField] = useState<number[][]>(
     setupBoard(
-      Array.from(Array(size), () => new Array(size).fill(0)),
-      Math.floor(size * size * 0.2) // Start with 20% of board as bombs
+      initialize2dArray({ ...size, fillWith: 0 }),
+      Math.floor(size.width * size.height * 0.2) // Start with 20% of board as bombs
     )
+  );
+  const [topLayer, setTopLayer] = useState(
+    initialize2dArray({ ...size, fillWith: 0 })
   );
   const [flags, setFlags] = useState([[]]);
   return (
-    <div>
-      <Grid>
-        <tbody>
-          {field.map((row, i) => (
-            <GridRow key={i}>
-              {row.map((cell, i) => (
-                <GridItem key={i}>{cell ? cell : ""}</GridItem>
-              ))}
-            </GridRow>
-          ))}
-        </tbody>
-      </Grid>
-    </div>
+    <MiddleOfScreen>
+      <BottomLayer>
+        <Grid>
+          <tbody>
+            {bottomLayer.map((row, i) => (
+              <GridRow key={i}>
+                {row.map((cell, i) => (
+                  <GridItem key={i}>{cell ? cell : ""}</GridItem>
+                ))}
+              </GridRow>
+            ))}
+          </tbody>
+        </Grid>
+      </BottomLayer>
+      <TopLayer>
+        <Grid>
+          <tbody>
+            {topLayer.map((row, i) => (
+              <GridRow key={i}>
+                {row.map((cell, i) => (
+                  <GridItem key={i}>
+                    <CoverUp />
+                  </GridItem>
+                ))}
+              </GridRow>
+            ))}
+          </tbody>
+        </Grid>
+      </TopLayer>
+    </MiddleOfScreen>
   );
 };
 

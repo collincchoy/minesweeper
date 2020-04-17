@@ -1,4 +1,16 @@
-import { convert1dTo2d, setupBoard } from "./utils";
+import { convert1dTo2d, setupBoard, initialize2dArray } from "./utils";
+
+describe("initialize2dArray", () => {
+  test("3x3 array of zeros", () => {
+    expect(
+      initialize2dArray({ width: 3, height: 3, fillWith: 0 })
+    ).toStrictEqual([
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ]);
+  });
+});
 
 describe("convert1dto2d works", () => {
   /**
@@ -31,7 +43,6 @@ describe("setupBoard works", () => {
     ];
     const bombsToPlace = 3;
     const result = setupBoard(intitialBoard, bombsToPlace);
-    console.debug(result);
 
     const countBombs = (row: number[]) =>
       row.reduce((prev, next) => (next === -1 ? prev + 1 : prev), 0);

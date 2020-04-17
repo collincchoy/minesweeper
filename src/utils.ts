@@ -1,3 +1,15 @@
+export const initialize2dArray = ({
+  width,
+  height,
+  fillWith,
+}: {
+  width: number;
+  height: number;
+  fillWith: number | string;
+}) => {
+  return Array.from(Array(height), () => new Array(width).fill(fillWith));
+};
+
 export const convert1dTo2d = (position: number, size: number) => {
   return {
     x: position % size,
@@ -15,7 +27,6 @@ export const setupBoard = (board: number[][], bombCount: number) => {
 
   bombPlacements.forEach((position) => {
     const { x, y } = convert1dTo2d(position, board.length);
-    console.log(x, y);
     board[y][x] = -1;
   });
 
