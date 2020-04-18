@@ -14,15 +14,33 @@ const Cover = styled.div`
   transition: opacity 0.5s;
 `;
 
+const ColoredNumber = styled.span`
+  color: ${(p: { value: number }) =>
+    p.value === 1 ? "green" : p.value === 2 ? "blue" : "red"};
+`;
+
 export const Block: React.FC<{ uncovered: boolean; value: BlockValue }> = ({
   uncovered,
   value,
-  children,
 }) => {
+  const renderValue = () => {
+    switch (value) {
+      case BlockValue.BOMB:
+        return (
+          <span role="img" aria-label="bomb">
+            💣
+          </span>
+        );
+      case BlockValue.EMPTY:
+        return <span></span>;
+      default:
+        return <ColoredNumber value={value}>{value}</ColoredNumber>;
+    }
+  };
   return (
     <>
       <Cover uncovered={uncovered} />
-      {children}
+      {renderValue()}
     </>
   );
 };
