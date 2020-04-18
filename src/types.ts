@@ -9,6 +9,10 @@ export enum BlockValue {
 export type BlockType = {
   uncovered: boolean;
   value: BlockValue;
-  rowIndex?: number;
-  colIndex?: number;
+  position: GridPosition;
+};
+
+export type GridPosition = {
+  row: number;
+  col: number;
 };

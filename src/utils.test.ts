@@ -4,6 +4,8 @@ import {
   initialize2dArray,
   convert2dTo1d,
   addMarkers,
+  uncoverBlock,
+  getSurroundingNonBombBlocks,
 } from "./utils";
 import { BlockValue, BlockType } from "./types";
 
@@ -54,10 +56,21 @@ describe("convert2dTo1d works", () => {
   });
 });
 
-const createBlankTile = () => ({ value: 0, uncovered: false });
-const createBombTile = () => ({ value: -1, uncovered: false });
-const create1Tile = () => ({ value: 1, uncovered: false });
-const createTile = (value: number) => ({ value, uncovered: false });
+const createBoardByValues = (initial: BlockValue[], width = 3, height = 3) => {
+  const res: BlockType[][] = [];
+  for (let row = 0; row < height; row++) {
+    res.push([]);
+    for (let col = 0; col < width; col++) {
+      res[row].push({
+        value: initial[convert2dTo1d(row, col, width, height)],
+        uncovered: false,
+        position: { row, col },
+      });
+    }
+  }
+  return res;
+};
+
 describe("addMarkers works", () => {
   /**
    *  [0, 1, 2],
@@ -65,29 +78,22 @@ describe("addMarkers works", () => {
       [6, 7, 8],
    */
   it("sets 1s in all around center for 1 center bomb in 3x3", () => {
-    const intitialBoard = [
-      [createBlankTile(), createBlankTile(), createBlankTile()],
-      [createBlankTile(), createBombTile(), createBlankTile()],
-      [createBlankTile(), createBlankTile(), createBlankTile()],
-    ];
-    expect(addMarkers(intitialBoard)).toStrictEqual([
-      [create1Tile(), create1Tile(), create1Tile()],
-      [create1Tile(), createBombTile(), create1Tile()],
-      [create1Tile(), create1Tile(), create1Tile()],
-    ]);
+    const initialBoard = initialize2dArray(3, 3, (row, col) => ({
+      uncovered: false,
+      value: 0,
+      position: { row, col },
+    }));
+    initialBoard[1][1].value = BlockValue.BOMB;
+    expect(addMarkers(initialBoard)).toStrictEqual(
+      createBoardByValues([1, 1, 1, 1, -1, 1, 1, 1, 1])
+    );
   });
 
   it("accumulates bomb counts", () => {
-    const intitialBoard = [
-      [createBlankTile(), createBlankTile(), createBlankTile()],
-      [createBombTile(), createBombTile(), createBombTile()],
-      [createBlankTile(), createBlankTile(), createBlankTile()],
-    ];
-    expect(addMarkers(intitialBoard)).toStrictEqual([
-      [createTile(2), createTile(3), createTile(2)],
-      [createBombTile(), createBombTile(), createBombTile()],
-      [createTile(2), createTile(3), createTile(2)],
-    ]);
+    const intitialBoard = createBoardByValues([0, 0, 0, -1, -1, -1, 0, 0, 0]);
+    expect(addMarkers(intitialBoard)).toStrictEqual(
+      createBoardByValues([2, 3, 2, -1, -1, -1, 2, 3, 2])
+    );
   });
 });
 
@@ -98,11 +104,7 @@ describe("setupBoard works", () => {
       [6, 7, 8],
    */
   it("returns a board with all of the bombs added", () => {
-    const intitialBoard = [
-      [createBlankTile(), createBlankTile(), createBlankTile()],
-      [createBlankTile(), createBlankTile(), createBlankTile()],
-      [createBlankTile(), createBlankTile(), createBlankTile()],
-    ];
+    const intitialBoard = createBoardByValues([0, 0, 0, 0, 0, 0, 0, 0, 0]);
     const bombsToPlace = 3;
     const result = setupBoard(intitialBoard, bombsToPlace);
 
@@ -117,5 +119,60 @@ describe("setupBoard works", () => {
         0 // initialValue
       );
     expect(countBombs(result)).toBe(bombsToPlace);
+  });
+});
+
+describe("getSurroundingNonBombBlocks", () => {
+  test("center of 3x3 square", () => {
+    expect([
+      ...getSurroundingNonBombBlocks(
+        createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]),
+        { row: 1, col: 1 }
+      ),
+    ]).toEqual([
+      { row: 0, col: 0 },
+      { row: 0, col: 1 },
+      { row: 0, col: 2 },
+      { row: 1, col: 0 },
+      { row: 1, col: 2 },
+      { row: 2, col: 0 },
+      { row: 2, col: 1 },
+      { row: 2, col: 2 },
+    ]);
+  });
+});
+
+describe("uncoverBlock works", () => {
+  /**
+   *  [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+   */
+  it("uncovers all surrounding, marked (non-bomb) tiles in center", () => {
+    const initialBoard = createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]);
+    expect(uncoverBlock(initialBoard, initialBoard[1][1])).toStrictEqual(
+      createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]).map((row) =>
+        row.map((block) => ({ ...block, uncovered: true }))
+      )
+    );
+  });
+  it("uncovers surrounding, marked (non-bomb) tiles on corner", () => {
+    const initialBoard = createBoardByValues([0, 1, 1, 1, 1, 1, 1, 1, 1]);
+    let expected = createBoardByValues([0, 1, 1, 1, 1, 1, 1, 1, 1]);
+    expected[0][0].uncovered = true;
+    expected[0][1].uncovered = true;
+    expected[1][0].uncovered = true;
+    expected[1][1].uncovered = true;
+    expect(uncoverBlock(initialBoard, initialBoard[0][0])).toStrictEqual(
+      expected
+    );
+  });
+  it("does not spread if uncovering a number", () => {
+    const initialBoard = createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]);
+    let expected = createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]);
+    expected[0][0].uncovered = true;
+    expect(uncoverBlock(initialBoard, initialBoard[0][0])).toStrictEqual(
+      expected
+    );
   });
 });

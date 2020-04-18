@@ -1,4 +1,4 @@
-import { BlockType, BlockValue } from "./types";
+import { BlockType, BlockValue, GridPosition } from "./types";
 
 export function initialize2dArray<T>(
   width: number,
@@ -32,13 +32,12 @@ export const convert2dTo1d = (
   return height * row + col;
 };
 
-export function* getSurroundingBlocks(
+export function* getSurroundingNonBombBlocks(
   board: BlockType[][],
-  row: number,
-  col: number,
-  width: number,
-  height: number
+  { row, col }: GridPosition
 ) {
+  const width = board.length;
+  const height = board[0]?.length;
   for (let r_offset = -1; r_offset <= 1; r_offset++) {
     for (let col_offset = -1; col_offset <= 1; col_offset++) {
       const r = row + r_offset;
@@ -48,7 +47,8 @@ export function* getSurroundingBlocks(
         r < height &&
         c >= 0 &&
         c < width &&
-        board[r][c].value !== BlockValue.BOMB
+        board[r][c].value !== BlockValue.BOMB &&
+        !(r === row && c === col) // skip block in question
       ) {
         yield { row: r, col: c };
       }
@@ -63,7 +63,7 @@ export const addMarkers = (board: BlockType[][]) => {
     for (let col = 0; col < height; col++) {
       if (board[row][col].value === BlockValue.BOMB) {
         // Add 1 to all surrounding blocks
-        for (const b of getSurroundingBlocks(board, row, col, width, height)) {
+        for (const b of getSurroundingNonBombBlocks(board, { row, col })) {
           board[b.row][b.col].value += 1;
         }
       }
@@ -93,4 +93,37 @@ export const setupBoard = (board: BlockType[][], bombCount: number) => {
     })
   );
   return addMarkers(withBombs);
+};
+
+/**
+ * Uncover a single block on the board.
+ * If the block is empty, then recursively uncover adjacent blocks
+ * to find non-empty blocks.
+ * @param board full board. Will return a new copy
+ * @param block reference to block on the board to uncover. Must be an exact ref
+ */
+export const uncoverBlock = (board: BlockType[][], block: BlockType) => {
+  const uncovered = new Set<GridPosition>();
+  const uncover = ({ value, position }: BlockType) => {
+    if (uncovered.has(position)) {
+      return;
+    }
+    uncovered.add(position);
+    if (value === BlockValue.BOMB) {
+      console.log("boom");
+    } else if (value === BlockValue.EMPTY) {
+      for (const surrounding of getSurroundingNonBombBlocks(board, position)) {
+        uncover(board[surrounding.row][surrounding.col]);
+      }
+    }
+  };
+  uncover(block);
+  return board.map((row) =>
+    row.map((block) => {
+      if (uncovered.has(block.position)) {
+        return { ...block, uncovered: true };
+      }
+      return block;
+    })
+  );
 };

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { setupBoard, initialize2dArray } from "../utils";
+import { setupBoard, initialize2dArray, uncoverBlock } from "../utils";
 import Block from "./Block";
-import { BlockType, BlockValue } from "../types";
+import { BlockType } from "../types";
 
 const Grid = styled.table`
   width: 500px;
@@ -32,37 +32,21 @@ const MiddleOfScreen = styled.div`
 `;
 
 const Board = () => {
-  const [size, setSize] = useState({ width: 10, height: 10 });
+  const [size] = useState({ width: 10, height: 10 });
   const [field, setField] = useState<BlockType[][]>(
     setupBoard(
       initialize2dArray(size.width, size.height, (row, col) => ({
         uncovered: false,
         value: 0,
-        rowIndex: row,
-        colIndex: col,
+        position: { row, col },
       })),
       Math.floor(size.width * size.height * 0.2) // Start with 20% of board as bombs
     )
   );
 
-  const handleClick = (
-    e: React.MouseEvent,
-    { value, rowIndex, colIndex }: BlockType
-  ) => {
-    if (value === BlockValue.BOMB) {
-      console.log("boom");
-    }
+  const handleClick = (e: React.MouseEvent, block: BlockType) => {
     setField((fieldState) => {
-      let newFieldState = fieldState.map((row, row_i) => {
-        return row.map((block, col_i) => {
-          if (row_i === rowIndex && col_i === colIndex) {
-            return { ...block, uncovered: true };
-          } else {
-            return block;
-          }
-        });
-      });
-      return newFieldState;
+      return uncoverBlock(fieldState, block);
     });
   };
   return (
