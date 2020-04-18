@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React from "react";
+import styled, { keyframes } from "styled-components";
 import { BlockValue } from "../types";
 
 const Cover = styled.div`
@@ -14,6 +14,29 @@ const Cover = styled.div`
   transition: opacity 0.5s;
 `;
 
+const Bomb = styled.span.attrs({
+  role: "img",
+})`
+  &::after {
+    content: "💣";
+  }
+`;
+
+const explode = keyframes`
+  from {
+    content: "💣";
+  }
+  to {
+    content: "💥";
+  }
+`;
+
+const ExplodingBomb = styled(Bomb)`
+  &::after {
+    animation: 1s ${explode} infinite both;
+  }
+`;
+
 const ColoredNumber = styled.span`
   color: ${(p: { value: number }) =>
     p.value === 1 ? "green" : p.value === 2 ? "blue" : "red"};
@@ -26,10 +49,10 @@ export const Block: React.FC<{ uncovered: boolean; value: BlockValue }> = ({
   const renderValue = () => {
     switch (value) {
       case BlockValue.BOMB:
-        return (
-          <span role="img" aria-label="bomb">
-            💣
-          </span>
+        return uncovered ? (
+          <ExplodingBomb aria-label="bomb-go-boom" />
+        ) : (
+          <Bomb aria-label="bomb" />
         );
       case BlockValue.EMPTY:
         return <span></span>;

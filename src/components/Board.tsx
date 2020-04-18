@@ -73,7 +73,7 @@ const Board = () => {
             <GridRow key={row_i}>
               {row.map((block, cell_i) => (
                 <GridItem key={cell_i} onClick={(e) => handleClick(e, block)}>
-                  <Block {...block}>{block.value}</Block>
+                  <Block {...block} />
                 </GridItem>
               ))}
             </GridRow>
