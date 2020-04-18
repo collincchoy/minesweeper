@@ -3,6 +3,7 @@ import {
   setupBoard,
   initialize2dArray,
   convert2dTo1d,
+  addMarkers,
 } from "./utils";
 import { BlockValue, BlockType } from "./types";
 
@@ -53,6 +54,43 @@ describe("convert2dTo1d works", () => {
   });
 });
 
+const createBlankTile = () => ({ value: 0, uncovered: false });
+const createBombTile = () => ({ value: -1, uncovered: false });
+const create1Tile = () => ({ value: 1, uncovered: false });
+const createTile = (value: number) => ({ value, uncovered: false });
+describe("addMarkers works", () => {
+  /**
+   *  [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+   */
+  it("sets 1s in all around center for 1 center bomb in 3x3", () => {
+    const intitialBoard = [
+      [createBlankTile(), createBlankTile(), createBlankTile()],
+      [createBlankTile(), createBombTile(), createBlankTile()],
+      [createBlankTile(), createBlankTile(), createBlankTile()],
+    ];
+    expect(addMarkers(intitialBoard)).toStrictEqual([
+      [create1Tile(), create1Tile(), create1Tile()],
+      [create1Tile(), createBombTile(), create1Tile()],
+      [create1Tile(), create1Tile(), create1Tile()],
+    ]);
+  });
+
+  it("accumulates bomb counts", () => {
+    const intitialBoard = [
+      [createBlankTile(), createBlankTile(), createBlankTile()],
+      [createBombTile(), createBombTile(), createBombTile()],
+      [createBlankTile(), createBlankTile(), createBlankTile()],
+    ];
+    expect(addMarkers(intitialBoard)).toStrictEqual([
+      [createTile(2), createTile(3), createTile(2)],
+      [createBombTile(), createBombTile(), createBombTile()],
+      [createTile(2), createTile(3), createTile(2)],
+    ]);
+  });
+});
+
 describe("setupBoard works", () => {
   /**
    *  [0, 1, 2],
@@ -60,7 +98,6 @@ describe("setupBoard works", () => {
       [6, 7, 8],
    */
   it("returns a board with all of the bombs added", () => {
-    const createBlankTile = () => ({ value: 0, uncovered: false });
     const intitialBoard = [
       [createBlankTile(), createBlankTile(), createBlankTile()],
       [createBlankTile(), createBlankTile(), createBlankTile()],

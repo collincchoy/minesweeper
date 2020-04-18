@@ -32,6 +32,34 @@ export const convert2dTo1d = (
   return height * row + col;
 };
 
+export const addMarkers = (board: BlockType[][]) => {
+  const width = board.length;
+  const height = board[0]?.length;
+  for (let row = 0; row < width; row++) {
+    for (let col = 0; col < height; col++) {
+      if (board[row][col].value === BlockValue.BOMB) {
+        // Add 1 to all surrounding blocks
+        for (let r_offset = -1; r_offset <= 1; r_offset++) {
+          for (let col_offset = -1; col_offset <= 1; col_offset++) {
+            const r = row + r_offset;
+            const c = col + col_offset;
+            if (
+              r >= 0 &&
+              r < height &&
+              c >= 0 &&
+              c < width &&
+              board[r][c].value !== BlockValue.BOMB
+            ) {
+              board[r][c].value += 1;
+            }
+          }
+        }
+      }
+    }
+  }
+  return board;
+};
+
 export const setupBoard = (board: BlockType[][], bombCount: number) => {
   const boardSize = board.length * board.length;
   const bombPlacements = new Set<number>();
@@ -40,7 +68,7 @@ export const setupBoard = (board: BlockType[][], bombCount: number) => {
     bombPlacements.add(Math.floor(Math.random() * boardSize));
   }
 
-  return board.map((row, row_i) =>
+  let withBombs = board.map((row, row_i) =>
     row.map((block, col_i) => {
       if (
         bombPlacements.has(
@@ -52,4 +80,5 @@ export const setupBoard = (board: BlockType[][], bombCount: number) => {
       return block;
     })
   );
+  return addMarkers(withBombs);
 };
