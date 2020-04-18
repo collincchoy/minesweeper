@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { BlockValue } from "../types";
 
 const Cover = styled.div`
   background-color: hsla(235, 7%, 80%, 1);
@@ -13,10 +14,17 @@ const Cover = styled.div`
   transition: opacity 0.5s;
 `;
 
-const CoverUp = () => {
-  const [uncovered, setUncovered] = useState(false);
-
-  return <Cover uncovered={uncovered} onClick={() => setUncovered(true)} />;
+export const Block: React.FC<{ uncovered: boolean; value: BlockValue }> = ({
+  uncovered,
+  value,
+  children,
+}) => {
+  return (
+    <>
+      <Cover uncovered={uncovered} />
+      {children}
+    </>
+  );
 };
 
-export default CoverUp;
+export default Block;

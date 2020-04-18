@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import { setupBoard, initialize2dArray } from "../utils";
-import CoverUp from "./CoverUp";
+import Block from "./Block";
+import { BlockType, BlockValue } from "../types";
 
 const Grid = styled.table`
   width: 500px;
@@ -32,37 +33,47 @@ const MiddleOfScreen = styled.div`
 
 const Board = () => {
   const [size, setSize] = useState({ width: 10, height: 10 });
-  const [bottomLayer, setField] = useState<number[][]>(
+  const [field, setField] = useState<BlockType[][]>(
     setupBoard(
-      initialize2dArray({ ...size, fillWith: 0 }),
+      initialize2dArray(size.width, size.height, (row, col) => ({
+        uncovered: false,
+        value: 0,
+        rowIndex: row,
+        colIndex: col,
+      })),
       Math.floor(size.width * size.height * 0.2) // Start with 20% of board as bombs
     )
   );
-  const [flags, setFlags] = useState([[]]);
 
   const handleClick = (
     e: React.MouseEvent,
-    cell: { content: number; row: number; col: number }
+    { value, rowIndex, colIndex }: BlockType
   ) => {
-    if (cell.content === -1) {
-      alert("BOOM!");
+    if (value === BlockValue.BOMB) {
+      console.log("boom");
     }
+    setField((fieldState) => {
+      let newFieldState = fieldState.map((row, row_i) => {
+        return row.map((block, col_i) => {
+          if (row_i === rowIndex && col_i === colIndex) {
+            return { ...block, uncovered: true };
+          } else {
+            return block;
+          }
+        });
+      });
+      return newFieldState;
+    });
   };
   return (
     <MiddleOfScreen>
       <Grid>
         <tbody>
-          {bottomLayer.map((row, row_i) => (
+          {field.map((row, row_i) => (
             <GridRow key={row_i}>
-              {row.map((cell, cell_i) => (
-                <GridItem
-                  key={cell_i}
-                  onClick={(e) =>
-                    handleClick(e, { content: cell, row: row_i, col: cell_i })
-                  }
-                >
-                  <CoverUp />
-                  {cell ? cell : ""}
+              {row.map((block, cell_i) => (
+                <GridItem key={cell_i} onClick={(e) => handleClick(e, block)}>
+                  <Block {...block}>{block.value}</Block>
                 </GridItem>
               ))}
             </GridRow>
