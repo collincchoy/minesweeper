@@ -32,6 +32,30 @@ export const convert2dTo1d = (
   return height * row + col;
 };
 
+export function* getSurroundingBlocks(
+  board: BlockType[][],
+  row: number,
+  col: number,
+  width: number,
+  height: number
+) {
+  for (let r_offset = -1; r_offset <= 1; r_offset++) {
+    for (let col_offset = -1; col_offset <= 1; col_offset++) {
+      const r = row + r_offset;
+      const c = col + col_offset;
+      if (
+        r >= 0 &&
+        r < height &&
+        c >= 0 &&
+        c < width &&
+        board[r][c].value !== BlockValue.BOMB
+      ) {
+        yield { row: r, col: c };
+      }
+    }
+  }
+}
+
 export const addMarkers = (board: BlockType[][]) => {
   const width = board.length;
   const height = board[0]?.length;
@@ -39,20 +63,8 @@ export const addMarkers = (board: BlockType[][]) => {
     for (let col = 0; col < height; col++) {
       if (board[row][col].value === BlockValue.BOMB) {
         // Add 1 to all surrounding blocks
-        for (let r_offset = -1; r_offset <= 1; r_offset++) {
-          for (let col_offset = -1; col_offset <= 1; col_offset++) {
-            const r = row + r_offset;
-            const c = col + col_offset;
-            if (
-              r >= 0 &&
-              r < height &&
-              c >= 0 &&
-              c < width &&
-              board[r][c].value !== BlockValue.BOMB
-            ) {
-              board[r][c].value += 1;
-            }
-          }
+        for (const b of getSurroundingBlocks(board, row, col, width, height)) {
+          board[b.row][b.col].value += 1;
         }
       }
     }
