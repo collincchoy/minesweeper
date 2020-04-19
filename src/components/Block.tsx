@@ -19,6 +19,10 @@ const Cover = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &:hover {
+    background-color: hsl(235, 7%, 60%);
+  }
 `;
 
 const Bomb = styled.span.attrs({
