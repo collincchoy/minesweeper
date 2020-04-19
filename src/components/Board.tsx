@@ -8,6 +8,7 @@ import {
   flagBlock,
   addMarkers,
   convert1dTo2d,
+  endGame,
 } from "../utils";
 import Block from "./Block";
 import { BlockType, GridPosition } from "../types";
@@ -44,7 +45,7 @@ type Bomb = {
 };
 
 const Board = () => {
-  const [size] = useState({ width: 10, height: 10 });
+  const [size] = useState({ width: 5, height: 5 });
   const [bombs, setBombs] = useState<Bomb[]>([]);
   const [field, setField] = useState<BlockType[][]>(() => {
     let initialBoard = initialize2dArray(
@@ -57,26 +58,25 @@ const Board = () => {
         flagged: false,
       })
     );
-    const { board: withbombs, bombs: placedBombs } = placeBombs(
+    const { board: withBombs, bombs: placedBombs } = placeBombs(
       initialBoard,
       Math.floor(size.width * size.height * 0.2) // Start with 20% of board as bombs
     );
     const bombs: Bomb[] = [];
-    placedBombs.forEach((position) =>
+    placedBombs.forEach((position) => {
       bombs.push({
         position: convert1dTo2d(position, size.width, size.height),
         flagged: false,
-      })
-    );
+      });
+    });
     setBombs(bombs);
-    initialBoard = addMarkers(withbombs);
+    initialBoard = addMarkers(withBombs);
     return initialBoard;
   });
 
   const handleClick = (e: React.MouseEvent, block: BlockType) => {
-    setField((fieldState) => {
-      return uncoverBlock(fieldState, block);
-    });
+    const newField = uncoverBlock(field, block);
+    setField(newField);
   };
 
   const handleRightClick = (e: React.MouseEvent, block: BlockType) => {
@@ -85,20 +85,26 @@ const Board = () => {
       // right click
       return flagBlock(fieldState, block);
     });
-    setBombs((bomb) =>
-      bomb.map((bomb) => {
-        if (
-          block.position.row === bomb.position.row &&
-          block.position.col === bomb.position.col
-        ) {
-          return { ...bomb, flagged: !bomb.flagged };
-        }
-        return bomb;
-      })
-    );
+    const newBombs = bombs.map((bomb) => {
+      if (
+        block.position.row === bomb.position.row &&
+        block.position.col === bomb.position.col
+      ) {
+        return { ...bomb, flagged: !bomb.flagged };
+      }
+      return bomb;
+    });
+    if (
+      newBombs.reduce(
+        (allFlagged, current) => allFlagged && current.flagged,
+        newBombs[0].flagged
+      )
+    ) {
+      endGame(false);
+    }
+    setBombs(newBombs);
   };
 
-  console.log(bombs);
   return (
     <MiddleOfScreen>
       <Grid>
