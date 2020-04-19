@@ -1,17 +1,24 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import { BlockValue } from "../types";
+import { BlockValue, BlockType } from "../types";
 
+type CoverProps = {
+  uncovered: boolean;
+};
 const Cover = styled.div`
   background-color: hsla(235, 7%, 80%, 1);
   width: 100%;
   height: 100%;
   position: absolute;
+  z-index: 100;
   top: 0%;
   left: 0%;
   cursor: pointer;
-  opacity: ${(p: { uncovered: boolean }) => (p.uncovered ? 0 : 1)};
+  opacity: ${(p: CoverProps) => (p.uncovered ? 0 : 1)};
   transition: opacity 0.5s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Bomb = styled.span.attrs({
@@ -37,15 +44,21 @@ const ExplodingBomb = styled(Bomb)`
   }
 `;
 
+const Flag = styled.span.attrs({
+  role: "img",
+})`
+  &::after {
+    font-size: 1.5rem;
+    content: "🏴‍☠️";
+  }
+`;
+
 const ColoredNumber = styled.span`
   color: ${(p: { value: number }) =>
     p.value === 1 ? "green" : p.value === 2 ? "blue" : "red"};
 `;
 
-export const Block: React.FC<{ uncovered: boolean; value: BlockValue }> = ({
-  uncovered,
-  value,
-}) => {
+export const Block: React.FC<BlockType> = ({ uncovered, value, flagged }) => {
   const renderValue = () => {
     switch (value) {
       case BlockValue.BOMB:
@@ -62,7 +75,7 @@ export const Block: React.FC<{ uncovered: boolean; value: BlockValue }> = ({
   };
   return (
     <>
-      <Cover uncovered={uncovered} />
+      <Cover uncovered={uncovered}>{flagged && <Flag />}</Cover>
       {renderValue()}
     </>
   );

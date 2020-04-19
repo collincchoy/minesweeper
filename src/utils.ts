@@ -127,3 +127,11 @@ export const uncoverBlock = (board: BlockType[][], block: BlockType) => {
     })
   );
 };
+
+export const flagBlock = (board: BlockType[][], block: BlockType) => {
+  return board.map((row) =>
+    row.map((b) =>
+      b.position === block.position ? { ...b, flagged: true } : b
+    )
+  );
+};

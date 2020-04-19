@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { setupBoard, initialize2dArray, uncoverBlock } from "../utils";
+import {
+  setupBoard,
+  initialize2dArray,
+  uncoverBlock,
+  flagBlock,
+} from "../utils";
 import Block from "./Block";
 import { BlockType } from "../types";
 
@@ -39,6 +44,7 @@ const Board = () => {
         uncovered: false,
         value: 0,
         position: { row, col },
+        flagged: false,
       })),
       Math.floor(size.width * size.height * 0.2) // Start with 20% of board as bombs
     )
@@ -49,6 +55,14 @@ const Board = () => {
       return uncoverBlock(fieldState, block);
     });
   };
+
+  const handleRightClick = (e: React.MouseEvent, block: BlockType) => {
+    e.preventDefault();
+    setField((fieldState) => {
+      // right click
+      return flagBlock(fieldState, block);
+    });
+  };
   return (
     <MiddleOfScreen>
       <Grid>
@@ -56,7 +70,11 @@ const Board = () => {
           {field.map((row, row_i) => (
             <GridRow key={row_i}>
               {row.map((block, cell_i) => (
-                <GridItem key={cell_i} onClick={(e) => handleClick(e, block)}>
+                <GridItem
+                  key={cell_i}
+                  onClick={(e) => handleClick(e, block)}
+                  onContextMenu={(e) => handleRightClick(e, block)}
+                >
                   <Block {...block} />
                 </GridItem>
               ))}

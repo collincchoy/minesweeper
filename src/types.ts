@@ -10,6 +10,7 @@ export type BlockType = {
   uncovered: boolean;
   value: BlockValue;
   position: GridPosition;
+  flagged: boolean;
 };
 
 export type GridPosition = {
