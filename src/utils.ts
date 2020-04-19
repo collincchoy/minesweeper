@@ -115,9 +115,7 @@ export const uncoverBlock = (board: BlockType[][], block: BlockType) => {
       return;
     }
     uncovered.add(position);
-    if (value === BlockValue.BOMB) {
-      endGame(true);
-    } else if (value === BlockValue.EMPTY) {
+    if (value === BlockValue.EMPTY) {
       for (const surrounding of getSurroundingNonBombBlocks(board, position)) {
         uncover(board[surrounding.row][surrounding.col]);
       }
@@ -140,14 +138,4 @@ export const flagBlock = (board: BlockType[][], block: BlockType) => {
       b.position === block.position ? { ...b, flagged: !b.flagged } : b
     )
   );
-};
-
-export const endGame = (goBoom: boolean) => {
-  let msg: string;
-  if (goBoom) {
-    msg = "BOOM!";
-  } else {
-    msg = "You got them all! You win!";
-  }
-  setTimeout(() => alert(msg), 500);
 };

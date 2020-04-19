@@ -8,10 +8,11 @@ import {
   flagBlock,
   addMarkers,
   convert1dTo2d,
-  endGame,
 } from "../utils";
 import Block from "./Block";
-import { BlockType, GridPosition } from "../types";
+import { BlockType, GridPosition, BlockValue } from "../types";
+import Modal from "./Modal";
+import useModal from "../hooks/useModal";
 
 const Grid = styled.table`
   width: 500px;
@@ -44,10 +45,19 @@ type Bomb = {
   flagged: boolean;
 };
 
-const Board = () => {
+const Game = () => {
+  const { isShowing, showModal, modalMessage, modalBackground } = useModal();
+  const endGame = (won: boolean) => {
+    if (won) {
+      showModal("You got them all! You win!", true);
+    } else {
+      showModal("BOOM!", false);
+    }
+  };
+
   const [size] = useState({ width: 5, height: 5 });
   const [bombs, setBombs] = useState<Bomb[]>([]);
-  const [field, setField] = useState<BlockType[][]>(() => {
+  const [board, setBoard] = useState<BlockType[][]>(() => {
     let initialBoard = initialize2dArray(
       size.width,
       size.height,
@@ -75,15 +85,18 @@ const Board = () => {
   });
 
   const handleClick = (e: React.MouseEvent, block: BlockType) => {
-    const newField = uncoverBlock(field, block);
-    setField(newField);
+    const newBoard = uncoverBlock(board, block);
+    setBoard(newBoard);
+    if (block.value === BlockValue.BOMB) {
+      endGame(false);
+    }
   };
 
   const handleRightClick = (e: React.MouseEvent, block: BlockType) => {
     e.preventDefault();
-    setField((fieldState) => {
+    setBoard((boardState) => {
       // right click
-      return flagBlock(fieldState, block);
+      return flagBlock(boardState, block);
     });
     const newBombs = bombs.map((bomb) => {
       if (
@@ -100,16 +113,21 @@ const Board = () => {
         newBombs[0].flagged
       )
     ) {
-      endGame(false);
+      endGame(true);
     }
     setBombs(newBombs);
   };
 
   return (
     <MiddleOfScreen>
+      <Modal
+        showing={isShowing}
+        message={modalMessage}
+        background={modalBackground}
+      />
       <Grid>
         <tbody>
-          {field.map((row, row_i) => (
+          {board.map((row, row_i) => (
             <GridRow key={row_i}>
               {row.map((block, cell_i) => (
                 <GridItem
@@ -128,4 +146,4 @@ const Board = () => {
   );
 };
 
-export default Board;
+export default Game;
