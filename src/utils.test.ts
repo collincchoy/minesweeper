@@ -1,6 +1,6 @@
 import {
   convert1dTo2d,
-  setupBoard,
+  placeBombs,
   initialize2dArray,
   convert2dTo1d,
   addMarkers,
@@ -26,13 +26,13 @@ describe("convert1dto2d works", () => {
       [6, 7, 8],
    */
   test("simple case", () => {
-    expect(convert1dTo2d(5, 3)).toStrictEqual({ x: 2, y: 1 });
+    expect(convert1dTo2d(5, 3, 3)).toStrictEqual({ row: 2, col: 1 });
   });
   it("works with 0", () => {
-    expect(convert1dTo2d(0, 3)).toStrictEqual({ x: 0, y: 0 });
+    expect(convert1dTo2d(0, 3, 3)).toStrictEqual({ row: 0, col: 0 });
   });
   it("works with corner", () => {
-    expect(convert1dTo2d(6, 3)).toStrictEqual({ x: 0, y: 2 });
+    expect(convert1dTo2d(6, 3, 3)).toStrictEqual({ row: 0, col: 2 });
   });
 });
 
@@ -65,6 +65,7 @@ const createBoardByValues = (initial: BlockValue[], width = 3, height = 3) => {
         value: initial[convert2dTo1d(row, col, width, height)],
         uncovered: false,
         position: { row, col },
+        flagged: false,
       });
     }
   }
@@ -78,12 +79,7 @@ describe("addMarkers works", () => {
       [6, 7, 8],
    */
   it("sets 1s in all around center for 1 center bomb in 3x3", () => {
-    const initialBoard = initialize2dArray(3, 3, (row, col) => ({
-      uncovered: false,
-      value: 0,
-      position: { row, col },
-    }));
-    initialBoard[1][1].value = BlockValue.BOMB;
+    const initialBoard = createBoardByValues([0, 0, 0, 0, -1, 0, 0, 0, 0]);
     expect(addMarkers(initialBoard)).toStrictEqual(
       createBoardByValues([1, 1, 1, 1, -1, 1, 1, 1, 1])
     );
@@ -97,7 +93,7 @@ describe("addMarkers works", () => {
   });
 });
 
-describe("setupBoard works", () => {
+describe("placing bombs works", () => {
   /**
    *  [0, 1, 2],
       [3, 4, 5],
@@ -106,7 +102,7 @@ describe("setupBoard works", () => {
   it("returns a board with all of the bombs added", () => {
     const intitialBoard = createBoardByValues([0, 0, 0, 0, 0, 0, 0, 0, 0]);
     const bombsToPlace = 3;
-    const result = setupBoard(intitialBoard, bombsToPlace);
+    const { board, bombs } = placeBombs(intitialBoard, bombsToPlace);
 
     const countBombs = (result: BlockType[][]) =>
       result.reduce(
@@ -118,7 +114,8 @@ describe("setupBoard works", () => {
           ),
         0 // initialValue
       );
-    expect(countBombs(result)).toBe(bombsToPlace);
+    expect(countBombs(board)).toBe(bombsToPlace);
+    expect(bombs.size).toBe(bombsToPlace);
   });
 });
 

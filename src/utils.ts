@@ -16,10 +16,14 @@ export function initialize2dArray<T>(
   return arr;
 }
 
-export const convert1dTo2d = (position: number, size: number) => {
+export const convert1dTo2d = (
+  position: number,
+  width: number,
+  height: number
+) => {
   return {
-    x: position % size,
-    y: Math.floor(position / size),
+    row: position % height,
+    col: Math.floor(position / width),
   };
 };
 
@@ -72,7 +76,7 @@ export const addMarkers = (board: BlockType[][]) => {
   return board;
 };
 
-export const setupBoard = (board: BlockType[][], bombCount: number) => {
+export const placeBombs = (board: BlockType[][], bombCount: number) => {
   const boardSize = board.length * board.length;
   const bombPlacements = new Set<number>();
 
@@ -80,19 +84,21 @@ export const setupBoard = (board: BlockType[][], bombCount: number) => {
     bombPlacements.add(Math.floor(Math.random() * boardSize));
   }
 
-  let withBombs = board.map((row, row_i) =>
-    row.map((block, col_i) => {
-      if (
-        bombPlacements.has(
-          convert2dTo1d(row_i, col_i, board.length, board.length)
-        )
-      ) {
-        return { ...block, value: BlockValue.BOMB };
-      }
-      return block;
-    })
-  );
-  return addMarkers(withBombs);
+  return {
+    board: board.map((row, row_i) =>
+      row.map((block, col_i) => {
+        if (
+          bombPlacements.has(
+            convert2dTo1d(row_i, col_i, board.length, board.length)
+          )
+        ) {
+          return { ...block, value: BlockValue.BOMB };
+        }
+        return block;
+      })
+    ),
+    bombs: bombPlacements,
+  };
 };
 
 /**
@@ -131,7 +137,7 @@ export const uncoverBlock = (board: BlockType[][], block: BlockType) => {
 export const flagBlock = (board: BlockType[][], block: BlockType) => {
   return board.map((row) =>
     row.map((b) =>
-      b.position === block.position ? { ...b, flagged: true } : b
+      b.position === block.position ? { ...b, flagged: !b.flagged } : b
     )
   );
 };
