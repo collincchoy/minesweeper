@@ -22,6 +22,7 @@ const StyledModal = styled.div`
   height: 150px;
   background-color: ${(p: ModalProps) => p.background};
   border-radius: 25px;
+  box-shadow: 5px 5px 3px grey;
   display: ${(p: { showing: boolean }) => (p.showing ? "flex" : "none")};
   justify-content: center;
   align-items: center;
