@@ -1,6 +1,10 @@
 import { BlockType, BlockValue, GridPosition, Bomb } from "./types";
 
-export const setupBoard = (width: number, height: number) => {
+export const setupBoard = (
+  width: number,
+  height: number,
+  bombCount: number
+) => {
   let initialBoard = initialize2dArray(width, height, (row, col) => ({
     uncovered: false,
     value: 0,
@@ -9,7 +13,7 @@ export const setupBoard = (width: number, height: number) => {
   }));
   const { board: withBombs, bombs: placedBombs } = placeBombs(
     initialBoard,
-    Math.floor(width * height * 0.2) // Start with 20% of board as bombs
+    bombCount
   );
   const bombs: Bomb[] = [];
   placedBombs.forEach((position) => {

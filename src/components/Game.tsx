@@ -62,17 +62,31 @@ const Game = () => {
   };
 
   const [size] = useState({ width: 5, height: 5 });
+  const [bombCount] = useState(
+    Math.floor(size.width * size.height * 0.2) // 20% of board is bombs
+  );
   const [bombs, setBombs] = useState<Bomb[]>([]);
   const [board, setBoard] = useState<BlockType[][]>(() => {
-    const { initialBoard, bombs } = setupBoard(size.width, size.height);
+    const { initialBoard, bombs } = setupBoard(
+      size.width,
+      size.height,
+      bombCount
+    );
     setBombs(bombs);
     return initialBoard;
   });
 
+  const [flagsLeft, setFlagsLeft] = useState(bombCount);
+
   const restartGame = () => {
-    const { initialBoard, bombs } = setupBoard(size.width, size.height);
+    const { initialBoard, bombs } = setupBoard(
+      size.width,
+      size.height,
+      bombCount
+    );
     clearModal();
     setBombs(bombs);
+    setFlagsLeft(bombCount);
     setBoard(initialBoard);
   };
 
@@ -86,6 +100,12 @@ const Game = () => {
 
   const handleRightClick = (e: React.MouseEvent, block: BlockType) => {
     e.preventDefault();
+    const alreadyFlagged = block.flagged;
+    if (!alreadyFlagged && flagsLeft === 0) {
+      console.log("No more flags!");
+      return;
+    }
+    setFlagsLeft(flagsLeft + (alreadyFlagged ? 1 : -1));
     setBoard((boardState) => {
       // right click
       return flagBlock(boardState, block);
