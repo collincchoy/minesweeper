@@ -15,7 +15,7 @@ const Cover = styled.div`
   left: 0%;
   cursor: pointer;
   opacity: ${(p: CoverProps) => (p.uncovered ? 0 : 1)};
-  transition: opacity 0.5s;
+  transition: opacity ${(p: CoverProps) => (p.uncovered ? "0.5s" : "0s")};
   display: flex;
   justify-content: center;
   align-items: center;
