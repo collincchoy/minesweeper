@@ -22,8 +22,8 @@ export const convert1dTo2d = (
   height: number
 ) => {
   return {
-    row: position % height,
-    col: Math.floor(position / width),
+    col: position % width,
+    row: Math.floor(position / height),
   };
 };
 

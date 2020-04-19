@@ -26,13 +26,16 @@ describe("convert1dto2d works", () => {
       [6, 7, 8],
    */
   test("simple case", () => {
-    expect(convert1dTo2d(5, 3, 3)).toStrictEqual({ row: 2, col: 1 });
+    expect(convert1dTo2d(5, 3, 3)).toStrictEqual({ row: 1, col: 2 });
   });
   it("works with 0", () => {
     expect(convert1dTo2d(0, 3, 3)).toStrictEqual({ row: 0, col: 0 });
   });
   it("works with corner", () => {
-    expect(convert1dTo2d(6, 3, 3)).toStrictEqual({ row: 0, col: 2 });
+    expect(convert1dTo2d(6, 3, 3)).toStrictEqual({ row: 2, col: 0 });
+  });
+  it("works with a larger board", () => {
+    expect(convert1dTo2d(1, 5, 5)).toStrictEqual({ row: 0, col: 1 });
   });
 });
 
