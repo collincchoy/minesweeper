@@ -6,6 +6,7 @@ import Block from "./Block";
 import { BlockType, BlockValue, Bomb } from "../types";
 import Modal from "./Modal";
 import useModal from "../hooks/useModal";
+import GameStatus from "./GameStatus";
 
 const Grid = styled.table`
   width: 500px;
@@ -28,9 +29,15 @@ const GridItem = styled.td`
 
 const MiddleOfScreen = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
+`;
+
+const Title = styled.h1`
+  margin-top: 0px;
+  margin-bottom: 0.5em;
 `;
 
 const RestartButton = styled.button`
@@ -53,15 +60,19 @@ const Game = () => {
     modalMessage,
     modalBackground,
   } = useModal();
+  const [winCount, setWinCount] = useState(0);
+  const [lossCount, setLossCount] = useState(0);
   const endGame = (won: boolean) => {
     if (won) {
+      setWinCount(winCount + 1);
       showModal("You got them all! You win!", true);
     } else {
+      setLossCount(lossCount + 1);
       showModal("BOOM!", false);
     }
   };
 
-  const [size] = useState({ width: 5, height: 5 });
+  const [size] = useState({ width: 10, height: 10 });
   const [bombCount] = useState(
     Math.floor(size.width * size.height * 0.2) // 20% of board is bombs
   );
@@ -137,12 +148,9 @@ const Game = () => {
         <RestartButton onClick={restartGame}>Restart</RestartButton>
       </Modal>
 
+      <Title>Minesweeper</Title>
+      <GameStatus flagsLeft={flagsLeft} wins={winCount} losses={lossCount} />
       <Grid>
-        <thead>
-          <tr>
-            <th>Flags Left: {flagsLeft}</th>
-          </tr>
-        </thead>
         <tbody>
           {board.map((row, row_i) => (
             <GridRow key={row_i}>
