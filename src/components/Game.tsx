@@ -1,16 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import {
-  placeBombs,
-  initialize2dArray,
-  uncoverBlock,
-  flagBlock,
-  addMarkers,
-  convert1dTo2d,
-} from "../utils";
+import { uncoverBlock, flagBlock, setupBoard } from "../utils";
 import Block from "./Block";
-import { BlockType, GridPosition, BlockValue } from "../types";
+import { BlockType, BlockValue, Bomb } from "../types";
 import Modal from "./Modal";
 import useModal from "../hooks/useModal";
 
@@ -40,13 +33,26 @@ const MiddleOfScreen = styled.div`
   height: 100vh;
 `;
 
-type Bomb = {
-  position: GridPosition;
-  flagged: boolean;
-};
+const RestartButton = styled.button`
+  padding: 10px;
+  border-radius: 10px;
+  background-color: aquamarine;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: hsl(160, 100%, 86%);
+  }
+`;
 
 const Game = () => {
-  const { isShowing, showModal, modalMessage, modalBackground } = useModal();
+  const {
+    isShowing,
+    showModal,
+    clearModal,
+    modalMessage,
+    modalBackground,
+  } = useModal();
   const endGame = (won: boolean) => {
     if (won) {
       showModal("You got them all! You win!", true);
@@ -58,31 +64,17 @@ const Game = () => {
   const [size] = useState({ width: 5, height: 5 });
   const [bombs, setBombs] = useState<Bomb[]>([]);
   const [board, setBoard] = useState<BlockType[][]>(() => {
-    let initialBoard = initialize2dArray(
-      size.width,
-      size.height,
-      (row, col) => ({
-        uncovered: false,
-        value: 0,
-        position: { row, col },
-        flagged: false,
-      })
-    );
-    const { board: withBombs, bombs: placedBombs } = placeBombs(
-      initialBoard,
-      Math.floor(size.width * size.height * 0.2) // Start with 20% of board as bombs
-    );
-    const bombs: Bomb[] = [];
-    placedBombs.forEach((position) => {
-      bombs.push({
-        position: convert1dTo2d(position, size.width, size.height),
-        flagged: false,
-      });
-    });
+    const { initialBoard, bombs } = setupBoard(size.width, size.height);
     setBombs(bombs);
-    initialBoard = addMarkers(withBombs);
     return initialBoard;
   });
+
+  const restartGame = () => {
+    const { initialBoard, bombs } = setupBoard(size.width, size.height);
+    clearModal();
+    setBombs(bombs);
+    setBoard(initialBoard);
+  };
 
   const handleClick = (e: React.MouseEvent, block: BlockType) => {
     const newBoard = uncoverBlock(board, block);
@@ -120,11 +112,11 @@ const Game = () => {
 
   return (
     <MiddleOfScreen>
-      <Modal
-        showing={isShowing}
-        message={modalMessage}
-        background={modalBackground}
-      />
+      <Modal showing={isShowing} background={modalBackground}>
+        <p>{modalMessage}</p>
+        <RestartButton onClick={restartGame}>Restart</RestartButton>
+      </Modal>
+
       <Grid>
         <tbody>
           {board.map((row, row_i) => (

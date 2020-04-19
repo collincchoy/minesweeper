@@ -1,4 +1,26 @@
-import { BlockType, BlockValue, GridPosition } from "./types";
+import { BlockType, BlockValue, GridPosition, Bomb } from "./types";
+
+export const setupBoard = (width: number, height: number) => {
+  let initialBoard = initialize2dArray(width, height, (row, col) => ({
+    uncovered: false,
+    value: 0,
+    position: { row, col },
+    flagged: false,
+  }));
+  const { board: withBombs, bombs: placedBombs } = placeBombs(
+    initialBoard,
+    Math.floor(width * height * 0.2) // Start with 20% of board as bombs
+  );
+  const bombs: Bomb[] = [];
+  placedBombs.forEach((position) => {
+    bombs.push({
+      position: convert1dTo2d(position, width, height),
+      flagged: false,
+    });
+  });
+  initialBoard = addMarkers(withBombs);
+  return { initialBoard, bombs };
+};
 
 export function initialize2dArray<T>(
   width: number,

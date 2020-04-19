@@ -3,7 +3,7 @@ import { ModalColor } from "../components/Modal";
 
 const useModal = () => {
   const [isShowing, setIsShowing] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
+  const [modalMessage, setModalMessage] = useState("This is the message");
   const [modalBackground, setModalBackground] = useState(ModalColor.SUCCESS);
 
   return {

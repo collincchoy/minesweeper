@@ -17,3 +17,8 @@ export type GridPosition = {
   row: number;
   col: number;
 };
+
+export type Bomb = {
+  position: GridPosition;
+  flagged: boolean;
+};

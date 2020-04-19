@@ -8,7 +8,6 @@ export enum ModalColor {
 
 type ModalProps = {
   showing: boolean;
-  message: string;
   background: ModalColor;
 };
 
@@ -26,14 +25,13 @@ const StyledModal = styled.div`
   display: ${(p: { showing: boolean }) => (p.showing ? "flex" : "none")};
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 `;
 
+const ModalContents = styled.div``;
+
 const Modal: React.FC<ModalProps> = (props) => {
-  return (
-    <StyledModal {...props}>
-      <p>{props.message}</p>
-    </StyledModal>
-  );
+  return <StyledModal {...props}>{props.children}</StyledModal>;
 };
 
 export default Modal;
