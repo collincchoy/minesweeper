@@ -11,8 +11,8 @@ const Cover = styled.div`
   height: 100%;
   position: absolute;
   z-index: 100;
-  top: 0%;
-  left: 0%;
+  top: 0.5px; // Offset the content border
+  left: 0.5px; // Offset the content border
   cursor: pointer;
   opacity: ${(p: CoverProps) => (p.uncovered ? 0 : 1)};
   transition: opacity ${(p: CoverProps) => (p.uncovered ? "0.5s" : "0s")};

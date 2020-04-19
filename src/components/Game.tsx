@@ -138,6 +138,11 @@ const Game = () => {
       </Modal>
 
       <Grid>
+        <thead>
+          <tr>
+            <th>Flags Left: {flagsLeft}</th>
+          </tr>
+        </thead>
         <tbody>
           {board.map((row, row_i) => (
             <GridRow key={row_i}>
