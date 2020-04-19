@@ -28,8 +28,6 @@ const StyledModal = styled.div`
   flex-direction: column;
 `;
 
-const ModalContents = styled.div``;
-
 const Modal: React.FC<ModalProps> = (props) => {
   return <StyledModal {...props}>{props.children}</StyledModal>;
 };

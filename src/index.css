@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins&display=swap");
+
 html {
   box-sizing: border-box;
 }
@@ -6,6 +8,7 @@ html {
 *:before,
 *:after {
   box-sizing: inherit;
+  font-family: "Poppins";
 }
 
 body {
