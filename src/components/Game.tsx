@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import { uncoverBlock, flagBlock, setupBoard } from "../utils";
-import { BlockType, BlockValue, Bomb } from "../types";
+import { BlockType, BlockValue, Bomb, DifficultyLevel } from "../types";
 import Modal from "./Modal";
 import useModal from "../hooks/useModal";
 import StatusBar from "./StatusBar";
 import Board from "./Board";
+import Button from "./Button";
+import DifficultyMap, { defaultConfig } from "../difficulties";
 
 const MiddleOfScreen = styled.div`
   display: flex;
@@ -16,18 +18,18 @@ const MiddleOfScreen = styled.div`
   height: 100vh;
 `;
 
-const Title = styled.h1`
-  margin-top: 0px;
-  margin-bottom: 0.5em;
+const Container = styled.div`
+  max-width: 500px;
 `;
 
-const RestartButton = styled.button`
-  padding: 10px;
-  border-radius: 10px;
-  background-color: aquamarine;
-  border: none;
-  cursor: pointer;
+const Title = styled.h1`
+  margin-top: 0px;
+  margin-bottom: 0px;
+  text-align: center;
+`;
 
+const RestartButton = styled(Button)`
+  background-color: aquamarine;
   &:hover {
     background-color: hsl(160, 100%, 86%);
   }
@@ -53,10 +55,17 @@ const Game = () => {
     }
   };
 
-  const [size] = useState({ width: 10, height: 10 });
-  const [bombCount] = useState(
-    Math.floor(size.width * size.height * 0.2) // 20% of board is bombs
-  );
+  const [difficultyLevel, setDifficultyLevel] = useState(DifficultyLevel.EASY);
+  const { size, bombCount } =
+    DifficultyMap.get(difficultyLevel) ?? defaultConfig;
+  const changeDifficulty = (level: DifficultyLevel) => {
+    const config = DifficultyMap.get(level);
+    if (config !== undefined) {
+      setDifficultyLevel(level);
+      restartGame(config.size, config.bombCount);
+    }
+  };
+
   const [bombs, setBombs] = useState<Bomb[]>([]);
   const [board, setBoard] = useState<BlockType[][]>(() => {
     const { initialBoard, bombs } = setupBoard(
@@ -70,7 +79,10 @@ const Game = () => {
 
   const [flagsLeft, setFlagsLeft] = useState(bombCount);
 
-  const restartGame = () => {
+  const restartGame = (
+    size: { width: number; height: number },
+    bombCount: number
+  ) => {
     const { initialBoard, bombs } = setupBoard(
       size.width,
       size.height,
@@ -82,7 +94,7 @@ const Game = () => {
     setBoard(initialBoard);
   };
 
-  const handleClick = (e: React.MouseEvent, block: BlockType) => {
+  const handleCellClick = (e: React.MouseEvent, block: BlockType) => {
     const { board: newBoard, recoveredFlags } = uncoverBlock(board, block);
     setBoard(newBoard);
     setFlagsLeft(flagsLeft + recoveredFlags);
@@ -91,7 +103,7 @@ const Game = () => {
     }
   };
 
-  const handleRightClick = (e: React.MouseEvent, block: BlockType) => {
+  const handleCellRightClick = (e: React.MouseEvent, block: BlockType) => {
     e.preventDefault();
     const alreadyFlagged = block.flagged;
     if (!alreadyFlagged && flagsLeft === 0) {
@@ -125,18 +137,28 @@ const Game = () => {
 
   return (
     <MiddleOfScreen>
-      <Modal showing={isShowing} background={modalBackground}>
-        <p>{modalMessage}</p>
-        <RestartButton onClick={restartGame}>Restart</RestartButton>
-      </Modal>
+      <Container>
+        <Modal showing={isShowing} background={modalBackground}>
+          <p>{modalMessage}</p>
+          <RestartButton onClick={() => restartGame(size, bombCount)}>
+            Restart
+          </RestartButton>
+        </Modal>
 
-      <Title>Minesweeper</Title>
-      <StatusBar flagsLeft={flagsLeft} wins={winCount} losses={lossCount} />
-      <Board
-        board={board}
-        onCellClick={handleClick}
-        onCellRightClick={handleRightClick}
-      />
+        <Title>Minesweeper</Title>
+        <StatusBar
+          flagsLeft={flagsLeft}
+          wins={winCount}
+          losses={lossCount}
+          currentDifficulty={difficultyLevel}
+          onClickChangeDifficulty={changeDifficulty}
+        />
+        <Board
+          board={board}
+          onCellClick={handleCellClick}
+          onCellRightClick={handleCellRightClick}
+        />
+      </Container>
     </MiddleOfScreen>
   );
 };

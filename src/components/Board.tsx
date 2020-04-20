@@ -8,16 +8,14 @@ const Grid = styled.table`
   height: 500px;
   border: 1px solid black;
   border-spacing: 0px;
+  table-layout: fixed;
 `;
 
 const GridRow = styled.tr``;
 
-// TODO: Make size of each tile dynamic to total grid size
 const GridItem = styled.td`
   border: 0.5px solid black;
   text-align: center;
-  width: 10%;
-  height: 10%;
   position: relative;
   overflow: hidden;
 `;
