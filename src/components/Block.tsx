@@ -72,7 +72,7 @@ export const Block: React.FC<BlockType> = ({ uncovered, value, flagged }) => {
           <Bomb aria-label="bomb" />
         );
       case BlockValue.EMPTY:
-        return <span></span>;
+        return <span>&nbsp;</span>;
       default:
         return <ColoredNumber value={value}>{value}</ColoredNumber>;
     }
