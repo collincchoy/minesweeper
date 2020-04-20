@@ -2,30 +2,11 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import { uncoverBlock, flagBlock, setupBoard } from "../utils";
-import Block from "./Block";
 import { BlockType, BlockValue, Bomb } from "../types";
 import Modal from "./Modal";
 import useModal from "../hooks/useModal";
-import GameStatus from "./GameStatus";
-
-const Grid = styled.table`
-  width: 500px;
-  height: 500px;
-  border: 1px solid black;
-  border-spacing: 0px;
-`;
-
-const GridRow = styled.tr``;
-
-// TODO: Make size of each tile dynamic to total grid size
-const GridItem = styled.td`
-  border: 0.5px solid black;
-  text-align: center;
-  width: 10%;
-  height: 10%;
-  position: relative;
-  overflow: hidden;
-`;
+import StatusBar from "./StatusBar";
+import Board from "./Board";
 
 const MiddleOfScreen = styled.div`
   display: flex;
@@ -150,24 +131,12 @@ const Game = () => {
       </Modal>
 
       <Title>Minesweeper</Title>
-      <GameStatus flagsLeft={flagsLeft} wins={winCount} losses={lossCount} />
-      <Grid>
-        <tbody>
-          {board.map((row, row_i) => (
-            <GridRow key={row_i}>
-              {row.map((block, cell_i) => (
-                <GridItem
-                  key={cell_i}
-                  onClick={(e) => handleClick(e, block)}
-                  onContextMenu={(e) => handleRightClick(e, block)}
-                >
-                  <Block {...block} />
-                </GridItem>
-              ))}
-            </GridRow>
-          ))}
-        </tbody>
-      </Grid>
+      <StatusBar flagsLeft={flagsLeft} wins={winCount} losses={lossCount} />
+      <Board
+        board={board}
+        onCellClick={handleClick}
+        onCellRightClick={handleRightClick}
+      />
     </MiddleOfScreen>
   );
 };
