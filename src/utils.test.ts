@@ -150,11 +150,12 @@ describe("uncoverBlock works", () => {
    */
   it("uncovers all surrounding, marked (non-bomb) tiles in center", () => {
     const initialBoard = createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]);
-    expect(uncoverBlock(initialBoard, initialBoard[1][1])).toStrictEqual(
-      createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]).map((row) =>
+    expect(uncoverBlock(initialBoard, initialBoard[1][1])).toStrictEqual({
+      board: createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]).map((row) =>
         row.map((block) => ({ ...block, uncovered: true }))
-      )
-    );
+      ),
+      recoveredFlags: 0,
+    });
   });
   it("uncovers surrounding, marked (non-bomb) tiles on corner", () => {
     const initialBoard = createBoardByValues([0, 1, 1, 1, 1, 1, 1, 1, 1]);
@@ -163,16 +164,29 @@ describe("uncoverBlock works", () => {
     expected[0][1].uncovered = true;
     expected[1][0].uncovered = true;
     expected[1][1].uncovered = true;
-    expect(uncoverBlock(initialBoard, initialBoard[0][0])).toStrictEqual(
-      expected
-    );
+    expect(uncoverBlock(initialBoard, initialBoard[0][0])).toStrictEqual({
+      board: expected,
+      recoveredFlags: 0,
+    });
   });
   it("does not spread if uncovering a number", () => {
     const initialBoard = createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]);
     let expected = createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]);
     expected[0][0].uncovered = true;
-    expect(uncoverBlock(initialBoard, initialBoard[0][0])).toStrictEqual(
-      expected
-    );
+    expect(uncoverBlock(initialBoard, initialBoard[0][0])).toStrictEqual({
+      board: expected,
+      recoveredFlags: 0,
+    });
+  });
+  it("recovers flags", () => {
+    const initialBoard = createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]);
+    initialBoard[0][0].flagged = true;
+    initialBoard[1][1].flagged = true;
+    expect(uncoverBlock(initialBoard, initialBoard[1][1])).toStrictEqual({
+      board: createBoardByValues([1, 1, 1, 1, 0, 1, 1, 1, 1]).map((row) =>
+        row.map((block) => ({ ...block, uncovered: true }))
+      ),
+      recoveredFlags: 2,
+    });
   });
 });

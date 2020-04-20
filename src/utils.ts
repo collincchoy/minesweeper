@@ -148,14 +148,21 @@ export const uncoverBlock = (board: BlockType[][], block: BlockType) => {
     }
   };
   uncover(block);
-  return board.map((row) =>
-    row.map((block) => {
-      if (uncovered.has(block.position)) {
-        return { ...block, uncovered: true };
-      }
-      return block;
-    })
-  );
+  let recoveredFlags = 0;
+  return {
+    board: board.map((row) =>
+      row.map((block) => {
+        if (uncovered.has(block.position)) {
+          if (block.flagged) {
+            recoveredFlags++;
+          }
+          return { ...block, uncovered: true, flagged: false };
+        }
+        return block;
+      })
+    ),
+    recoveredFlags,
+  };
 };
 
 export const flagBlock = (board: BlockType[][], block: BlockType) => {

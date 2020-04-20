@@ -102,8 +102,9 @@ const Game = () => {
   };
 
   const handleClick = (e: React.MouseEvent, block: BlockType) => {
-    const newBoard = uncoverBlock(board, block);
+    const { board: newBoard, recoveredFlags } = uncoverBlock(board, block);
     setBoard(newBoard);
+    setFlagsLeft(flagsLeft + recoveredFlags);
     if (block.value === BlockValue.BOMB) {
       endGame(false);
     }
