@@ -1,3 +1,7 @@
+# Minesweeper
+
+This respository contains source code for in-browser Minesweeper.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
