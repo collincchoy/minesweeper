@@ -1,28 +1,19 @@
 import { useState } from "react";
-import { ModalColor } from "../components/Modal";
 
 const useModal = () => {
   const [isShowing, setIsShowing] = useState(false);
-  const [modalMessage, setModalMessage] = useState("This is the message");
-  const [modalBackground, setModalBackground] = useState(ModalColor.SUCCESS);
+  const [success, setSuccess] = useState(false);
 
   return {
-    showModal: (message: string, success: boolean) => {
-      setModalMessage(message);
-      if (success) {
-        setModalBackground(ModalColor.SUCCESS);
-      } else {
-        setModalBackground(ModalColor.FAILURE);
-      }
+    showModal: (success: boolean) => {
+      setSuccess(success);
       setIsShowing(true);
     },
     clearModal: () => {
-      setModalMessage("");
       setIsShowing(false);
     },
     isShowing,
-    modalMessage,
-    modalBackground,
+    success,
   };
 };
 

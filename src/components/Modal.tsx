@@ -1,14 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-export enum ModalColor {
-  SUCCESS = "#35c575",
-  FAILURE = "#c54545",
-}
-
 type ModalProps = {
   showing: boolean;
-  background: ModalColor;
+  background: string;
 };
 
 const StyledModal = styled.div`

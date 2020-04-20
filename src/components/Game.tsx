@@ -3,12 +3,11 @@ import styled from "styled-components";
 
 import { uncoverBlock, flagBlock, setupBoard } from "../utils";
 import { BlockType, BlockValue, Bomb, DifficultyLevel } from "../types";
-import Modal from "./Modal";
 import useModal from "../hooks/useModal";
 import StatusBar from "./StatusBar";
 import Board from "./Board";
-import Button from "./Button";
 import DifficultyMap, { defaultConfig } from "../difficulties";
+import GameModal from "./GameModal";
 
 const MiddleOfScreen = styled.div`
   display: flex;
@@ -28,36 +27,24 @@ const Title = styled.h1`
   text-align: center;
 `;
 
-const RestartButton = styled(Button)`
-  background-color: aquamarine;
-  &:hover {
-    background-color: hsl(160, 100%, 86%);
-  }
-`;
-
 const Game = () => {
-  const {
-    isShowing,
-    showModal,
-    clearModal,
-    modalMessage,
-    modalBackground,
-  } = useModal();
+  const { isShowing, showModal, clearModal, success } = useModal();
   const [winCount, setWinCount] = useState(0);
   const [lossCount, setLossCount] = useState(0);
   const endGame = (won: boolean) => {
     if (won) {
       setWinCount(winCount + 1);
-      showModal("You got them all! You win!", true);
+      showModal(true);
     } else {
       setLossCount(lossCount + 1);
-      showModal("BOOM!", false);
+      showModal(false);
     }
   };
 
   const [difficultyLevel, setDifficultyLevel] = useState(DifficultyLevel.EASY);
   const { size, bombCount } =
     DifficultyMap.get(difficultyLevel) ?? defaultConfig;
+
   const changeDifficulty = (level: DifficultyLevel) => {
     const config = DifficultyMap.get(level);
     if (config !== undefined) {
@@ -138,12 +125,19 @@ const Game = () => {
   return (
     <MiddleOfScreen>
       <Container>
-        <Modal showing={isShowing} background={modalBackground}>
-          <p>{modalMessage}</p>
-          <RestartButton onClick={() => restartGame(size, bombCount)}>
-            Restart
-          </RestartButton>
-        </Modal>
+        <GameModal
+          isShowing={isShowing}
+          success={success}
+          handleRestart={() => restartGame(size, bombCount)}
+          showNext={success && difficultyLevel !== DifficultyLevel.HARD}
+          handleNext={() => {
+            if (difficultyLevel === DifficultyLevel.EASY) {
+              changeDifficulty(DifficultyLevel.MEDIUM);
+            } else if (difficultyLevel === DifficultyLevel.MEDIUM) {
+              changeDifficulty(DifficultyLevel.HARD);
+            }
+          }}
+        />
 
         <Title>Minesweeper</Title>
         <StatusBar
